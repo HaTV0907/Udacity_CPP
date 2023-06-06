@@ -1,2 +1,2 @@
-# C-Udacity-
+# Udacity_CPP
 Udacity C++ course
