@@ -52,6 +52,17 @@ std::string Ram(int pid);
 std::string Uid(int pid);
 std::string User(int pid);
 long int UpTime(int pid);
-};  // namespace LinuxParser
+std::vector<float> getCpuUtil(int pid);
+
+// process states as defined in https://man7.org/linux/man-pages/man5/proc.5.html
+enum ProcessStates {
+  uTimeT = 14,
+  sTimeT = 15,
+  cuTimeT = 16,
+  csTimeT = 17,
+  startTimeT = 22
+};
+
+};   // namespace LinuxParser
 
 #endif

@@ -8,6 +8,7 @@ It contains relevant attributes as shown below
 */
 class Process {
  public:
+  Process(int pid);
   int Pid();                               // TODO: See src/process.cpp
   std::string User();                      // TODO: See src/process.cpp
   std::string Command();                   // TODO: See src/process.cpp
@@ -18,6 +19,21 @@ class Process {
 
   // TODO: Declare any necessary private members
  private:
+  int pid;
+  std::string user;
+  std::string cmd;
+  float cpuUtil;
+  std::string ram;
+  long uTime;
+
+  enum ProcessStates {
+    uTimeT = 0,
+    sTimeT,
+    cuTimeT,
+    csTimeT,
+    startTimeT
+  };
+
 };
 
 #endif
