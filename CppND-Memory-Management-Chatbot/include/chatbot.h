@@ -16,7 +16,7 @@ private:
     // data handles (not owned)
     GraphNode *_currentNode;
     GraphNode *_rootNode;
-    ChatLogic *_chatLogic;
+    ChatLogic *_upChatLogic;
 
     // proprietary functions
     int ComputeLevenshteinDistance(std::string s1, std::string s2);
@@ -27,17 +27,16 @@ public:
     ChatBot(std::string filename); // constructor WITH memory allocation
     ~ChatBot();
 
-    //// STUDENT CODE
-    ////
-
-    ////
-    //// EOF STUDENT CODE
+    ChatBot(const ChatBot& src);
+    ChatBot(ChatBot&& src);
+    ChatBot& operator=(const ChatBot& src);
+    ChatBot& operator=(ChatBot&& src);
 
     // getters / setters
     void SetCurrentNode(GraphNode *node);
     void SetRootNode(GraphNode *rootNode) { _rootNode = rootNode; }
-    void SetChatLogicHandle(ChatLogic *chatLogic) { _chatLogic = chatLogic; }
-    ChatLogic* GetChatLogicHandle() { return _chatLogic; }
+    void SetChatLogicHandle(ChatLogic *chatLogic) { _upChatLogic = chatLogic; }
+    ChatLogic* GetChatLogicHandle() { return _upChatLogic; }
     wxBitmap *GetImageHandle() { return _image; }
 
     // communication
