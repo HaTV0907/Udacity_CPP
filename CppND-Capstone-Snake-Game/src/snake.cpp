@@ -1,13 +1,14 @@
 #include "snake.h"
 #include <cmath>
 #include <iostream>
+#include <renderer.h>
 
-void Snake::Update() {
+void Snake::Update(bool *obstacle, SDL_Window* win) {
   SDL_Point prev_cell{
       static_cast<int>(head_x),
       static_cast<int>(
           head_y)};  // We first capture the head's cell before updating.
-  UpdateHead();
+  UpdateHead(obstacle, win);
   SDL_Point current_cell{
       static_cast<int>(head_x),
       static_cast<int>(head_y)};  // Capture the head's cell after updating.
@@ -15,11 +16,11 @@ void Snake::Update() {
   // Update all of the body vector items if the snake head has moved to a new
   // cell.
   if (current_cell.x != prev_cell.x || current_cell.y != prev_cell.y) {
-    UpdateBody(current_cell, prev_cell);
+    UpdateBody(current_cell, prev_cell, win);
   }
 }
 
-void Snake::UpdateHead() {
+void Snake::UpdateHead(bool *obstacle, SDL_Window* win) {
   switch (direction) {
     case Direction::kUp:
       head_y -= speed;
@@ -38,12 +39,22 @@ void Snake::UpdateHead() {
       break;
   }
 
-  // Wrap the Snake around to the beginning if going off of the screen.
-  head_x = fmod(head_x + grid_width, grid_width);
-  head_y = fmod(head_y + grid_height, grid_height);
+  if (*obstacle) {
+      if (head_x > 32 || head_y > 32 || head_x < 0 || head_y < 0) {
+          std::cout << "Game Over." << std::endl;
+          alive = false;
+          std::string _msg{ "Score: " + std::to_string(*score) + "\n Size: " + std::to_string(size) };
+          SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game Over!", _msg.c_str(),win);
+      }
+  }
+  else {
+      // Wrap the Snake around to the beginning if going off of the screen.
+      head_x = fmod(head_x + grid_width, grid_width);
+      head_y = fmod(head_y + grid_height, grid_height);
+  }
 }
 
-void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) {
+void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell, SDL_Window *win) {
   // Add previous head location to vector
   body.push_back(prev_head_cell);
 
@@ -59,6 +70,8 @@ void Snake::UpdateBody(SDL_Point &current_head_cell, SDL_Point &prev_head_cell) 
   for (auto const &item : body) {
     if (current_head_cell.x == item.x && current_head_cell.y == item.y) {
       alive = false;
+      std::string _msg{ "Score: " + std::to_string(*score) + "\nSize: " + std::to_string(size) };
+      SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_INFORMATION, "Game Over!", _msg.c_str(), win);
     }
   }
 }

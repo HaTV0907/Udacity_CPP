@@ -2,15 +2,18 @@
 #include <iostream>
 #include "SDL.h"
 
+#include <thread>
+#include <chrono>
+#include <future>
 Game::Game(std::size_t grid_width, std::size_t grid_height)
-    : snake(grid_width, grid_height),
-      engine(dev()),
-      random_w(0, static_cast<int>(grid_width - 1)),
-      random_h(0, static_cast<int>(grid_height - 1)) {
-  PlaceFood();
+    : snake(grid_width, grid_height, &score),
+    engine(dev()),
+    random_w(0, static_cast<int>(grid_width)),
+    random_h(0, static_cast<int>(grid_height)) {
+    PlaceFood();
 }
 
-void Game::Run(Controller const &controller, Renderer &renderer,
+void Game::Run(Controller const &controller, Renderer *renderer,
                std::size_t target_frame_duration) {
   Uint32 title_timestamp = SDL_GetTicks();
   Uint32 frame_start;
@@ -23,9 +26,9 @@ void Game::Run(Controller const &controller, Renderer &renderer,
     frame_start = SDL_GetTicks();
 
     // Input, Update, Render - the main game loop.
-    controller.HandleInput(running, snake);
-    Update();
-    renderer.Render(snake, food);
+    controller.HandleInput(running, snake, *this);
+    Update(renderer);
+    renderer->Render(snake, food, &_obstacle, &_pos);
 
     frame_end = SDL_GetTicks();
 
@@ -36,7 +39,7 @@ void Game::Run(Controller const &controller, Renderer &renderer,
 
     // After every second, update the window title.
     if (frame_end - title_timestamp >= 1000) {
-      renderer.UpdateWindowTitle(score, frame_count);
+      renderer->UpdateWindowTitle(score, frame_count);
       frame_count = 0;
       title_timestamp = frame_end;
     }
@@ -65,22 +68,53 @@ void Game::PlaceFood() {
   }
 }
 
-void Game::Update() {
-  if (!snake.alive) return;
+void Game::Update(Renderer* renderer) {
+    if (this->_pause == true) {
+        renderer->PauseMsg();
+        return;
+    };
+    if (!snake.alive)
+    {
+        return;
+    }
 
-  snake.Update();
+    SDL_Window* _pWin = renderer->GetSDLWin();
+    snake.Update(&_obstacle, _pWin);
 
-  int new_x = static_cast<int>(snake.head_x);
-  int new_y = static_cast<int>(snake.head_y);
+    int new_x = static_cast<int>(snake.head_x);
+    int new_y = static_cast<int>(snake.head_y);
 
-  // Check if there's food over here
-  if (food.x == new_x && food.y == new_y) {
-    score++;
-    PlaceFood();
-    // Grow snake and increase speed.
-    snake.GrowBody();
-    snake.speed += 0.02;
-  }
+    std::random_device _rndDev;
+    std::mt19937 _rndGen(_rndDev());
+    std::uniform_int_distribution<> _rndDis(1, 10);
+
+    // Check if there's food over here
+    if (food.x == new_x && food.y == new_y) {
+        score++;
+        PlaceFood();
+        // Grow snake and increase speed.
+        snake.GrowBody();
+        if (_rndDis(_rndGen) <= 2) {
+            _pos = true;
+            std::thread _tid([&]() {
+                std::this_thread::sleep_for(std::chrono::seconds(5));
+                _pos = false;
+                });
+            _tid.detach();
+        }
+
+    }
+}
+void Game::ChangeGameStatus() {
+    this->_pause ? ResumeGame() : PauseGame();
+}
+
+void Game::PauseGame() {
+    this->_pause = true;
+}
+
+void Game::ResumeGame() {
+    this->_pause = false;
 }
 
 int Game::GetScore() const { return score; }
