@@ -1,28 +1,59 @@
 #include "syslog.h"
 
-sysLog::sysLog()
-{
-    _player = "Hatv";
+sysLog::sysLog() : _player("Hatv") {
 }
-sysLog::~sysLog()
-{
+
+sysLog::~sysLog(){
     _player = "";
 }
 
+/**
+ * @brief Checks the existence of a directory.
+ *
+ * This function takes a directory path as input and returns a boolean
+ * indicating whether the specified directory exists or not.
+ *
+ * @param dirPath The path of the directory is to be checked.
+ * @return True if the directory exists, false otherwise.
+ */
 
 bool sysLog::checkDirExistance(const std::string& dirPath) {
     struct stat _temp;
     return (stat(dirPath.c_str(), &_temp) == 0 && S_ISDIR(_temp.st_mode));
 }
 
+/**
+ * @brief set player's name.
+ *
+ * This function used to set the player's name
+ *
+ * @param name name to set
+ * @return This function does not return value.
+ */
 void sysLog::setPlayerName(const std::string& name) {
     _player = name;
 }
 
+/**
+ * @brief This function used to get the player's name.
+ *
+ * This function used to get the player's name.
+ *
+ * @param This function does not have input param.
+ * @return Player's name.
+ */
 const std::string& sysLog::getPlayerName() const {
     return _player;
 }
 
+/**
+ * @brief This function used to save text message to log file.
+ *
+ * This function used to save text message to log file.
+ *
+ * @param msg message to save to log file.
+ * @return This function does not return value.
+ */
 void sysLog::save(const std::string& msg) {
     char _temp[PATH_MAX];
     std::string _logDir{};
