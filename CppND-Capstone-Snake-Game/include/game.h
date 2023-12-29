@@ -6,7 +6,7 @@
 #include "controller.h"
 #include "renderer.h"
 #include "snake.h"
-
+#include <mutex>
 class Game {
  public:
   Game(std::size_t grid_width, std::size_t grid_height);
@@ -37,6 +37,7 @@ protected:
   void ResumeGame();
   bool _pause;
   bool _pos;
+  std::mutex mtx;
 };
 
 #endif

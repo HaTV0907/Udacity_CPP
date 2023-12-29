@@ -98,7 +98,9 @@ void Game::Update(Renderer* renderer) {
             _pos = true;
             std::thread _tid([&]() {
                 std::this_thread::sleep_for(std::chrono::seconds(5));
+                std::unique_lock<std::mutex> lock(mtx); // Lock the mutex
                 _pos = false;
+                lock.unlock(); // Unlock the mutex
                 });
             _tid.detach();
         }
@@ -110,11 +112,15 @@ void Game::ChangeGameStatus() {
 }
 
 void Game::PauseGame() {
+    std::unique_lock<std::mutex> lock(mtx); // Lock the mutex
     this->_pause = true;
+    lock.unlock(); // Unlock the mutex
 }
 
 void Game::ResumeGame() {
+    std::unique_lock<std::mutex> lock(mtx); // Lock the mutex
     this->_pause = false;
+    lock.unlock(); // Unlock the mutex
 }
 
 int Game::GetScore() const { return score; }
